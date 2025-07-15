@@ -2,8 +2,7 @@ import "./App.css"
 import Header from "./components/Header"
 import Editor from "./components/Editor"
 import List from "./components/List"
-import { useState, useRef } from "react"
-import Exam from "./components/Exam"
+import { useState, useRef, useReducer, createContext, useMemo } from "react"
 
 const mockData = [
   {
@@ -26,70 +25,72 @@ const mockData = [
   },
 ]
 
+function reducer(state, action) {
+  switch (action.type) {
+    case "CREATE":
+      return [action.data, ...state]
+    case "UPDATE":
+      return state.map((todo) =>
+        todo.id === action.data ? { ...todo, isDone: !todo.isDone } : todo
+      )
+    // 강사님이 짠 코드(state.data 형식을 모두 다 맞추지는 않아도 된다.)
+    // state.map((item)=> item.id === action.targetId ? {...item, isDone : !item.isDone} : todo)
+    case "DELETE":
+      return state.filter((todo) => todo.id !== action.data)
+  }
+}
+
+export const TodoStateContext = createContext()
+export const TodoDispatchContext = createContext()
+
 function App() {
-  const [todos, setTodos] = useState(mockData)
+  const [todos, dispatch] = useReducer(reducer, mockData)
   let newIdRef = useRef(mockData.length)
 
   const onCreate = (content) => {
-    const newTodos = {
-      id: newIdRef.current++,
-      date: new Date().getTime(),
-      content: content,
-      isDone: false,
-    }
-
-    setTodos([newTodos, ...todos])
+    dispatch({
+      type: "CREATE",
+      data: {
+        id: newIdRef.current++,
+        date: new Date().getTime(),
+        content: content,
+        isDone: false,
+      },
+    })
   }
 
   const onUpdate = (id) => {
-    // 내가 짠 것
-    // todos state 중에 targetId와 일치하는 id를 갖는 todo item의 isDone을 toggle
-    // todos.map((todo) => {
-    //   if (todo.id === id) {
-    //     todo.isDone = todo.isDone === true ? false : true
-    //   }
-    // })
-    // setTodos[{ ...todos }]
-
-    // 강사님이 짠 것
-    // setTodos(
-    //   todos.map((todo) => {
-    //     if (todo.id === id) {
-    //       return {
-    //         ...todo,
-    //         isDone: !todo.isDone,
-    //       }
-    //     } else {
-    //       return todo
-    //     }
-    //   })
-    // )
-
-    // 간결하게 하면 wwwwwwwwwwwwow
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, isDone: !todo.isDone } : todo
-      )
-    )
+    dispatch({
+      type: "UPDATE",
+      data: id,
+    })
   }
 
   const onDelete = (id) => {
-    // todo.findIndex = todos.find(todo.id === id)
-    // const removed = todos.splice()
-
-    // filter 아닌 줄 알았는데 filter 였누..
-    setTodos(todos.filter((todo) => todo.id !== id))
+    dispatch({
+      type: "DELETE",
+      data: id,
+    })
   }
 
+  const memoizedDispatch = useMemo(() => {
+    return {
+      onCreate,
+      onUpdate,
+      onDelete,
+    }
+  }, [])
+
   return (
-    <div>
-      <Exam />
+    <div className="App">
+      <TodoStateContext.Provider value={todos}>
+        <TodoDispatchContext.Provider value={memoizedDispatch}>
+          <Header />
+          <Editor />
+          <List />
+        </TodoDispatchContext.Provider>
+      </TodoStateContext.Provider>
     </div>
-    // <div className="App">
-    //   <Header />
-    //   <Editor onCreate={onCreate} />
-    //   <List todos={todos} onUpdate={onUpdate} onDelete={onDelete} />
-    // </div>
   )
 }
 

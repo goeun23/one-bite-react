@@ -1,3 +1,4 @@
+import { memo } from "react"
 import "./Header.css"
 const Header = () => (
   <div className="Header">
@@ -5,5 +6,5 @@ const Header = () => (
     <h1>{new Date().toDateString()}</h1>
   </div>
 )
-
-export default Header
+const memoizedHeader = memo(Header)
+export default memoizedHeader

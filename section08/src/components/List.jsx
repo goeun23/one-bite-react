@@ -1,8 +1,12 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useContext } from "react"
 import "./List.css"
 import TodoItem from "./TodoItem"
-const List = ({ todos, onUpdate, onDelete }) => {
+import { TodoDispatchContext, TodoStateContext } from "../App"
+const List = () => {
+  const { onUpdate, onDelete } = useContext(TodoDispatchContext)
+  const todos = useContext(TodoStateContext)
   const [keyword, setKeyword] = useState("")
+
   const onChangeSearch = (e) => {
     setKeyword(e.target.value)
   }
@@ -18,6 +22,18 @@ const List = ({ todos, onUpdate, onDelete }) => {
 
   const fileteredTodos = getFilteredData()
 
+  const { todoCount, doneCount, notDoneCount } = useMemo(() => {
+    console.log("getAnalizedData 호출!")
+    const todoCount = todos.length
+    const doneCount = todos.filter((x) => x.isDone).length
+    const notDoneCount = todoCount - doneCount
+    return {
+      todoCount,
+      doneCount,
+      notDoneCount,
+    }
+  }, [todos])
+
   return (
     <div className="List">
       <h3>Todo List😊</h3>
@@ -26,6 +42,9 @@ const List = ({ todos, onUpdate, onDelete }) => {
         value={keyword}
         onChange={onChangeSearch}
       />
+      <div>todoCount : {todoCount}</div>
+      <div>doneCount : {doneCount}</div>
+      <div>notDoneCount : {notDoneCount}</div>
       <div className="todo-wrapper">
         {fileteredTodos.map((todo) => {
           return (
