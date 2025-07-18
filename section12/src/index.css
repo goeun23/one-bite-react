@@ -1,0 +1,8 @@
+@font-face {
+  font-family: "NanhumpenScript";
+  src: url("/onclip-font.ttf");
+}
+
+body * {
+  font-family: "NanhumpenScript";
+}
