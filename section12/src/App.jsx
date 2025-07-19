@@ -4,20 +4,20 @@ import Home from "./pages/Home"
 import New from "./pages/New"
 import Diary from "./pages/Diary"
 import Notfound from "./pages/Notfound"
+import Button from "./components/Button"
+import Header from "./components/Header"
+
 function App() {
-  const navigation = useNavigate()
-  const onClickButton = () => {
-    navigation("/new")
-  }
   return (
     <>
-      <Link to={"/"}>Home</Link>
-      <Link to={"/new"}>New</Link>
-      <Link to={"/diary"}>Diary</Link>
-
-      <a href="/new">new</a>
-      <a href="/">home</a>
-      <button onClick={onClickButton}>New 페이지로 이동</button>
+      <Header
+        title={"Header"}
+        leftChild={<Button text={"Left"}></Button>}
+        rightChild={<Button text={"RIGHT"}></Button>}
+      />
+      <Button text={123}></Button>
+      <Button text={123} type={"POSITIVE"}></Button>
+      <Button text={123} type={"NEGATIVE"}></Button>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/new" element={<New />} />
